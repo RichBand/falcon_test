@@ -9,7 +9,6 @@ BaseModel = declarative_base()
 class CalendarModel(BaseModel):
     __tablename__ = 'calendar'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     service_id = Column(Integer, ForeignKey('trip.trip_id'), index=True, nullable=False)
     monday = Column(Boolean, default=False)
     tuesday = Column(Boolean, default=False)
@@ -19,6 +18,8 @@ class CalendarModel(BaseModel):
     saturday = Column(Boolean, default=False)
     sunday = Column(Boolean, default=False)
     start_date = Column(DateTime, default=False)
+
+    id = Column(Integer, primary_key=True, nullable=True, autoincrement=True)
     created = Column(DateTime, default=datetime.datetime.now)
     modified = Column(DateTime, onupdate=datetime.datetime.now)
     deleted = Column(DateTime)
