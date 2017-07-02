@@ -1,67 +1,60 @@
 import datetime
-from marshmallow import Schema, fields, post_dump
+from marshmallow import Schema, fields, post_load
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 BaseModel = declarative_base()
 
 
-class Route(BaseModel):
-    __tablename__ = 'route'
+class TripModel(BaseModel):
+    """
+    for bikes_allowed and wheelchair_accessible:
+        0 (or empty): Indicates that there is no accessibility information for the trip
+        1: Indicates that the vehicle being used on this particular trip can accommodate at least one rider in a wheelchair
+        2: Indicates that no riders in wheelchairs can be accommodated on this trip
+    """
+    __tablename__ = 'trip'
+
+    trip_id = Column(Integer, index=True, nullable=False, unique=True)
+    route_id = Column(Integer, ForeignKey('route.route_id'), index=True, nullable=False)
+    service_id = Column(Integer, ForeignKey('calendar.service_id'), index=True, nullable=False)
+    direction_id = Column(Integer, index=True)
+    block_id = Column(String(255), index=True)
+    shape_id = Column(String(255), index=True, nullable=True)
+    trip_type = Column(String(255))
+    trip_headsign = Column(String(255))
+    trip_short_name = Column(String(255))
+    bikes_allowed = Column(Integer, default=0)
+    wheelchair_accessible = Column(Integer, default=0)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    route_id = Column(Integer, index=True, nullable=False, unique=True)
-    route_short_name = Column(String(length=128), default='',)
-    route_long_name = Column(String(length=128), nullable=False, unique=True)
-    route_desc = Column(String(length=512), default='')
-    route_color = Column(String(length=64), unique=True)
-    route_type = Column(Integer, default=3)
     created = Column(DateTime, default=datetime.datetime.now)
     modified = Column(DateTime, onupdate=datetime.datetime.now)
     deleted = Column(DateTime)
 
 
-class RouteSchema(Schema):
+class TripSchema(Schema):
     class Meta:
         ordered = True
         strict = True
 
+    trip_id = fields.Integer()
     route_id = fields.Integer()
-    route_short_name = fields.String()
-    route_long_name = fields.String()
-    route_desc = fields.String()
-    route_color = fields.String()
-    route_type = fields.Integer()
-    route_active = fields.Boolean()
+    service_id = fields.Integer()
+    direction_id = fields.Integer()
+    block_id = fields.String()
+    shape_id = fields.String()
+    trip_type = fields.String()
+    trip_headsign = fields.String()
+    trip_short_name = fields.String()
+    bikes_allowed = fields.Integer()
+    wheelchair_accessible = fields.Integer()
 
-    @post_dump
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    created = fields.DateTime(dump_only=True)
+    modified = fields.DateTime(dump_only=True)
+    deleted = fields.DateTime(dump_only=True)
+
+    @post_load
     def create_model(self, data):
-        return Route(**data)
-
-
-class Trip(BaseModel):
-    __tablename__ = 'trip'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    created = DateTime()
-    modified = DateTime()
-    deleted = DateTime()
-
-
-class Calendar(BaseModel):
-    __tablename__ = 'calendar'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    service_id = Column(Integer, index=True, nullable=False)
-    monday = Column(Boolean, default=False)
-    tuesday = Column(Boolean, default=False)
-    wednesday = Column(Boolean, default=False)
-    thursday = Column(Boolean, default=False)
-    friday = Column(Boolean, default=False)
-    saturday = Column(Boolean, default=False)
-    sunday = Column(Boolean, default=False)
-    start_date = Column(DateTime, default=False)
-    created = DateTime()
-    modified = DateTime()
-    deleted = DateTime()
+        return TripModel(**data)
