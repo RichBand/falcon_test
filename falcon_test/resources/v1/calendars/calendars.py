@@ -6,7 +6,7 @@ class CalendarsCollection:
 
     def on_get(self, req, resp):
         query = req.context['session'].query(CalendarModel)
-        query = query.order_by(CalendarModel.service_id)
+        query = query.order_by(CalendarModel.id)
         services = query.all()
         data = CalendarSchema(many=True).dump(services).data
         resp.body = json.dumps(data)

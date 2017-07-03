@@ -6,7 +6,7 @@ class RoutesCollection:
 
     def on_get(self, req, resp):
         query = req.context['session'].query(RouteModel)
-        query = query.order_by(RouteModel.route_id)
+        query = query.order_by(RouteModel.id)
         routes = query.all()
         data = RouteSchema(many=True).dump(routes).data
         resp.body = json.dumps(data)
@@ -22,7 +22,7 @@ class RoutesCollection:
         route_schema = RouteSchema()
         data = route_schema.load(json.loads(req.stream.read())).data
         query = req.context['session'].query(RouteModel)
-        route = query.filter(RouteModel.route_id == data.route_id).one_or_none()
+        route = query.filter(RouteModel.id == data.route_id).one_or_none()
         # #TODO: how to do this: route.update(data)?
         # for key in data.keys():
         #     route[key] == data[key]
@@ -33,7 +33,7 @@ class RoutesItem:
 
     def on_get(self, req, resp, route_id):
         query = req.context['session'].query(RouteModel)
-        query = query.filter(RouteModel.route_id == route_id)
+        query = query.filter(RouteModel.id == route_id)
         route = query.one_or_none()
         if not route:
             raise falcon.HTTPNotFound()
@@ -41,7 +41,7 @@ class RoutesItem:
 
     def on_delete(self, req, route_id):
         query = req.context['session'].query(RouteModel)
-        query = query.filter(RouteModel.route_id == route_id)
+        query = query.filter(RouteModel.id == route_id)
         route = query.one_or_none()
         if not route:
             raise falcon.HTTPNotFound()

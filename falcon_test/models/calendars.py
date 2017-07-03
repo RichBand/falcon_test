@@ -9,7 +9,8 @@ BaseModel = declarative_base()
 class CalendarModel(BaseModel):
     __tablename__ = 'calendar'
 
-    service_id = Column(Integer, ForeignKey('trip.trip_id'), index=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    trip_id = Column(Integer, ForeignKey('trip.id'), index=True, nullable=False)
     monday = Column(Boolean, default=False)
     tuesday = Column(Boolean, default=False)
     wednesday = Column(Boolean, default=False)
@@ -19,7 +20,6 @@ class CalendarModel(BaseModel):
     sunday = Column(Boolean, default=False)
     start_date = Column(DateTime, default=False)
 
-    id = Column(Integer, primary_key=True, nullable=True, autoincrement=True)
     created = Column(DateTime, default=datetime.datetime.now)
     modified = Column(DateTime, onupdate=datetime.datetime.now)
     deleted = Column(DateTime)
@@ -31,7 +31,7 @@ class CalendarSchema(Schema):
         strict = True
 
     id = fields.Integer()
-    service_id = fields.Integer()
+    trip_id = fields.Integer()
     monday = fields.Boolean()
     tuesday = fields.Boolean()
     wednesday = fields.Boolean()

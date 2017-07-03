@@ -1,5 +1,6 @@
 import datetime
 from marshmallow import Schema, fields, post_dump
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String
 
@@ -25,21 +26,32 @@ class StopTimeModel(BaseModel):
     """
     __tablename__ = 'stop_times'
 
-    trip_id = Column(Integer, ForeignKey('trip.trip_id'), primary_key=True, index=True, nullable=False)
-    stop_id = Column(Integer, index=True, nullable=False)
-    stop_sequence = Column(Integer, primary_key=True, nullable=False)
+    trip_id = Column(Integer, ForeignKey('trip.id'), primary_key=True, index=True, nullable=False)
+    stop_id = Column(Integer, ForeignKey('stop.id'), index=True, nullable=False)
+    sequence = Column(Integer, primary_key=True, nullable=False)
     arrival_time = Column(String(9))
     departure_time = Column(String(9), index=True)
-    stop_headsign = Column(String(255))
+    headsign = Column(String(255))
     pickup_type = Column(Integer, default=0)
     drop_off_type = Column(Integer, default=0)
     shape_dist_traveled = Column(Numeric(20, 10))
     timepoint = Column(Integer, default=0)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     created = Column(DateTime, default=datetime.datetime.now)
     modified = Column(DateTime, onupdate=datetime.datetime.now)
     deleted = Column(DateTime)
+
+    stop = relationship(
+        'stop',
+        primaryjoin='stop.id==stop_time.stop_id',
+        foreign_keys='(stop_time.stop_id)',
+        uselist=False, viewonly=True)
+
+    trip = relationship(
+        'trip',
+        primaryjoin='trip.id==stop_time.trip_id',
+        foreign_keys='(stop_time.trip_id)',
+        uselist=False, viewonly=True)
 
 
 class StopTimeSchema(Schema):
@@ -47,23 +59,17 @@ class StopTimeSchema(Schema):
         ordered = True
         strict = True
 
+    trip_id = fields.Integer()
     stop_id = fields.Integer()
-    stop_code = fields.String()
-    stop_name = fields.String()
-    stop_desc = fields.String()
-    stop_lat = fields.Number()
-    stop_lon = fields.Number()
-    zone_id = fields.String()
-    stop_url = fields.String()
-    location_type = fields.Integer()
-    parent_station = fields.String()
-    stop_timezone = fields.String()
-    wheelchair_boarding = fields.Integer()
-    platform_code = fields.String()
-    direction = fields.String()
-    position = fields.String()
+    sequence = fields.Integer()
+    arrival_time = fields.String()
+    departure_time = fields.String()
+    headsign = fields.String()
+    pickup_type = fields.Integer()
+    drop_off_type = fields.Integer()
+    shape_dist_traveled = fields.Column(Numeric(20, 10))
+    timepoint = fields.Integer()
 
-    id = fields.Integer(dump_only=True)
     created = fields.DateTime(dump_only=True)
     modified = fields.DateTime(dump_only=True)
     deleted = fields.DateTime(dump_only=True)

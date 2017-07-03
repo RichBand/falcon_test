@@ -6,7 +6,7 @@ class AgenciesCollection:
 
     def on_get(self, req, resp):
         query = req.context['sesssion'].query(AgencyModel)
-        query = query.order_by(AgencyModel.agency_id)
+        query = query.order_by(AgencyModel._id)
         agencies = query.all()
         data = AgencySchema(many=True).dump(agencies).data
         resp.body = json.dumps(data)
@@ -22,7 +22,7 @@ class AgenciesItem:
 
     def on_get(self, req, resp, agency_id):
         query = req.context['session'].query(AgencyModel)
-        query = query.filter(AgencyModel.agency_id == agency_id)
+        query = query.filter(AgencyModel.id == agency_id)
         agency = query.one_or_none()
         if not agency:
             raise falcon.HTTPNotFound()

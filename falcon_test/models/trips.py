@@ -1,5 +1,6 @@
 import datetime
 from marshmallow import Schema, fields, post_load
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
@@ -15,22 +16,40 @@ class TripModel(BaseModel):
     """
     __tablename__ = 'trip'
 
-    trip_id = Column(Integer, index=True, nullable=False, unique=True)
-    route_id = Column(Integer, ForeignKey('route.route_id'), index=True, nullable=False)
-    service_id = Column(Integer, ForeignKey('calendar.service_id'), index=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    route_id = Column(Integer, ForeignKey('route.id'), index=True, nullable=False)
+    calendar_id = Column(Integer, ForeignKey('calendar.id'), index=True, nullable=False)
     direction_id = Column(Integer, index=True)
     block_id = Column(String(255), index=True)
     shape_id = Column(String(255), index=True, nullable=True)
-    trip_type = Column(String(255))
-    trip_headsign = Column(String(255))
-    trip_short_name = Column(String(255))
+    type = Column(String(255))
+    headsign = Column(String(255))
+    short_name = Column(String(255))
     bikes_allowed = Column(Integer, default=0)
     wheelchair_accessible = Column(Integer, default=0)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     created = Column(DateTime, default=datetime.datetime.now)
     modified = Column(DateTime, onupdate=datetime.datetime.now)
     deleted = Column(DateTime)
+
+    route = relationship(
+        'Route',
+        primaryjoin='Trip.route_id==Route.id',
+        foreign_keys='(Trip.route_id)',
+        uselist=False, viewonly=True)
+
+    stop_times = relationship(
+        'stop_time',
+        primaryjoin='trip.id==stop_time.trip_id',
+        foreign_keys='(trip.id)',
+        order_by='stop_time.sequence',
+        uselist=True, viewonly=True)
+
+    calendar = relationship(
+        'calendar',
+        primaryjoin='trip.calendar_id==calendar.id',
+        foreign_keys='(trip.calendar_id)',
+        uselist=True, viewonly=True)
 
 
 class TripSchema(Schema):
@@ -38,19 +57,18 @@ class TripSchema(Schema):
         ordered = True
         strict = True
 
-    trip_id = fields.Integer()
+    id = fields.Integer()
     route_id = fields.Integer()
     service_id = fields.Integer()
     direction_id = fields.Integer()
     block_id = fields.String()
     shape_id = fields.String()
-    trip_type = fields.String()
-    trip_headsign = fields.String()
-    trip_short_name = fields.String()
+    type = fields.String()
+    headsign = fields.String()
+    short_name = fields.String()
     bikes_allowed = fields.Integer()
     wheelchair_accessible = fields.Integer()
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     created = fields.DateTime(dump_only=True)
     modified = fields.DateTime(dump_only=True)
     deleted = fields.DateTime(dump_only=True)
