@@ -1,10 +1,8 @@
 import datetime
 from marshmallow import Schema, fields, post_dump
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
+from .base import BaseModel
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String
-
-BaseModel = declarative_base()
 
 
 class StopTimeModel(BaseModel):
@@ -67,7 +65,7 @@ class StopTimeSchema(Schema):
     headsign = fields.String()
     pickup_type = fields.Integer()
     drop_off_type = fields.Integer()
-    shape_dist_traveled = fields.Column(Numeric(20, 10))
+    shape_dist_traveled = fields.Number()
     timepoint = fields.Integer()
 
     created = fields.DateTime(dump_only=True)

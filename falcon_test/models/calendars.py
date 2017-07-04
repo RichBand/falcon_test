@@ -1,9 +1,7 @@
 import datetime
 from marshmallow import Schema, fields, post_dump
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer
-
-BaseModel = declarative_base()
+from .base import BaseModel
 
 
 class CalendarModel(BaseModel):

@@ -1,10 +1,8 @@
 import datetime
 from marshmallow import Schema, fields, post_load
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
-
-BaseModel = declarative_base()
+from .base import BaseModel
 
 
 class RouteModel(BaseModel):

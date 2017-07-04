@@ -1,22 +1,16 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from falcon_test.models import agencies, calendars, routes, stops, trips
+from falcon_test.models.base import BaseModel
+from falcon_test.models.agencies import AgencyModel
+from falcon_test.models.calendars import CalendarModel
+from falcon_test.models.routes import RouteModel
+from falcon_test.models.stops import StopModel
+from falcon_test.models.stops_time import StopTimeModel
+from falcon_test.models.trips import TripModel
 
-BaseModel = declarative_base()
 
+def database_creator():
+    engine = create_engine('sqlite:///PeterboroughTransit.db')
+    BaseModel.metadata.create_all(bind=engine)
 
-class DatabaseCreator:
-    def __init__(self):
-
-        engine = create_engine('sqlite:///PeterboroughTransit.db')
-        session = sessionmaker(bind=engine)
-
-        agency = agencies.AgencyModel()
-        calendar = calendars.CalendarModel()
-        route = routes.RouteModel()
-        stop = stops.StopModel()
-        trip = trips.TripModel()
-        BaseModel.metadata.create_all(bind=engine)
-
-DatabaseCreator()
+if __name__ == '__main__':
+    database_creator()
